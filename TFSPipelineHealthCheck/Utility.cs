@@ -14,10 +14,15 @@ namespace TFSPipelineHealthCheck
 {
     public static class Utility
     {
-        public static string TFSUri;
+        private static string tfsUri;
+        public static string TFSUri
+        {
+            get { return tfsUri; }
+            set { tfsUri = value.TrimEnd('/'); }
+        }
         public static string InvokeRestApi(String MyURI, params object[] args)
         {
-            WebRequest WReq = WebRequest.Create(new Uri(new Uri(TFSUri),string.Format(MyURI,args)));
+            WebRequest WReq = WebRequest.Create(new Uri(TFSUri+string.Format(MyURI,args)));
             WReq.Method = "GET";
             WReq.ContentType = "application/json";
             WReq.UseDefaultCredentials = true;
