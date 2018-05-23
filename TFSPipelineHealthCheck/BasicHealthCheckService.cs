@@ -13,8 +13,16 @@ namespace TFSPipelineHealthCheck
 {
     public partial class BasicHealthCheckService : ServiceBase
     {
+        public int AgentHealthCheckInterval { get; set; } = 1000; // miliseconds
         private int eventId = 1;
-        public BasicHealthCheckService(string[] args)
+        private static BasicHealthCheckService instance = null;
+        public static BasicHealthCheckService GetInstance()
+        {
+            if (instance == null)
+                instance = new BasicHealthCheckService();
+            return instance;
+        }
+        private BasicHealthCheckService()
         {
             InitializeComponent();
             if (!System.Diagnostics.EventLog.SourceExists(eventLog1.Source))
@@ -27,7 +35,7 @@ namespace TFSPipelineHealthCheck
         {
             // Set up a timer to trigger every minute.  
             System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = 1000; // 1 seconds  
+            timer.Interval = AgentHealthCheckInterval;   
             timer.Elapsed += new System.Timers.ElapsedEventHandler(this.OnTimer);
             timer.Start();
             eventLog1.WriteEntry("TFSPipelineHealthCheck Service is started");
