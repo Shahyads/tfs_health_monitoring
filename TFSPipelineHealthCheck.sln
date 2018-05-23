@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFSPipelineHealthCheck", "TFSPipelineHealthCheck\TFSPipelineHealthCheck.csproj", "{BDF67085-345F-4AEC-85B3-A68E6159FF05}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BDF67085-345F-4AEC-85B3-A68E6159FF05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDF67085-345F-4AEC-85B3-A68E6159FF05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDF67085-345F-4AEC-85B3-A68E6159FF05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDF67085-345F-4AEC-85B3-A68E6159FF05}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3FB5D6E-278A-438A-9EF0-0B4D41D87E5A}
+	EndGlobalSection
+EndGlobal
