@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -73,7 +72,7 @@ namespace TFSPipelineHealthCheck
                     }
                     else if (args[i].Equals("-interval", StringComparison.OrdinalIgnoreCase) || args[i].Equals("/interval", StringComparison.OrdinalIgnoreCase))
                     {
-                        BasicHealthCheckService.GetInstance().AgentHealthCheckInterval= int.Parse(args[++i]);
+                        MonitorAgents.GetInstance().AgentHealthCheckInterval= int.Parse(args[++i]);
                     }
                     else
                     {

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,8 +12,6 @@ namespace TFSPipelineHealthCheck
 {
     public partial class BasicHealthCheckService : ServiceBase
     {
-        public int AgentHealthCheckInterval { get; set; } = 1000; // miliseconds
-        private int eventId = 1;
         private static BasicHealthCheckService instance = null;
         public static BasicHealthCheckService GetInstance()
         {
@@ -33,34 +30,20 @@ namespace TFSPipelineHealthCheck
 
         protected override void OnStart(string[] args)
         {
-            // Set up a timer to trigger every minute.  
-            System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = AgentHealthCheckInterval;   
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(this.OnTimer);
-            timer.Start();
-            eventLog1.WriteEntry("TFSPipelineHealthCheck Service is started");
+            if (!args.Contains("-noEventLog"))
+                MonitorAgents.GetInstance().eventlog = eventLog1;
+            MonitorAgents.GetInstance().GetTimer().Start();
+            eventLog1.WriteEntry("TFSPipelineHealthCheck Service is started", EventLogEntryType.Information, 1);
         }
 
         protected override void OnStop()
         {
-            eventLog1.WriteEntry("TFSPipelineHealthCheck Service is stoped.");
-        }
-        public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
-        {
-            if (! MonitorAgents.GetInstance().IsRunning)
-            {
-                MonitorAgents.GetInstance().Run(eventLog1, ref eventId);
-            }
-            //eventLog1.WriteEntry("Monitoring the System", EventLogEntryType.Information, eventId++);
-        }
-
-        private static void MonitorTFSAgents()
-        {
-            var agents = Utility.GetAgents();
+            eventLog1.WriteEntry("TFSPipelineHealthCheck Service is stoped.",EventLogEntryType.Information,2);
         }
 
         internal void TestStartupAndStop(string[] args)
         {
+            args = args.Concat(new string[] { "-noEventLog" }).ToArray();
             this.OnStart(args);
             Console.WriteLine("Monitoring is started ....");
             do

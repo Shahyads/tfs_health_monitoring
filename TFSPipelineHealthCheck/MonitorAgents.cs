@@ -19,6 +19,8 @@ namespace TFSPipelineHealthCheck
         public string To { get; set; }
         public string SmtpServer { get; set; }
         public int Port { get; set; } = 25;
+        public int AgentHealthCheckInterval { get; set; } = 1000; // miliseconds
+        private int eventId = 3;  //1 is reserved for start //2 is reserved for stop //so that be able to trigger some tasks on start and stop service events
         private static MonitorAgents instance = null;
         private MonitorAgents()
         {
@@ -36,7 +38,8 @@ namespace TFSPipelineHealthCheck
             private set;
         } = false;
         private List<Agent> badAgentList = new List<Agent>();
-        public void Run(System.Diagnostics.EventLog eventlog, ref int eventId)
+        public System.Diagnostics.EventLog eventlog=null;
+        public void Run()
         {
             try
             {
@@ -58,12 +61,36 @@ namespace TFSPipelineHealthCheck
             }
             catch (Exception ex)
             {
-                eventlog.WriteEntry(ex.Message +"\n"+ ex.StackTrace, EventLogEntryType.Error, eventId++);
+                WriteLog(ex.Message +"\n"+ ex.StackTrace, EventLogEntryType.Error);
             }
             finally
             {
                 IsRunning = false;
             }
+        }
+        public System.Timers.Timer GetTimer()
+        {
+            // Set up a timer to trigger every minute.  
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Interval = AgentHealthCheckInterval;
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(this.OnTimer);
+            return timer;
+        }
+        public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
+        {
+            if (!MonitorAgents.GetInstance().IsRunning)
+            {
+                MonitorAgents.GetInstance().Run();
+            }
+            //WriteLog("Monitoring the System", EventLogEntryType.Information);
+        }
+
+        private void WriteLog(string log, EventLogEntryType entryType)
+        {
+            if (eventlog != null)
+                eventlog.WriteEntry(log, entryType, eventId++);
+            else
+                Console.WriteLine(log);
         }
     }
 }
