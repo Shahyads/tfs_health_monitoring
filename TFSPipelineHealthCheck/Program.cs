@@ -74,6 +74,10 @@ namespace TFSPipelineHealthCheck
                     {
                         MonitorAgents.GetInstance().AgentHealthCheckInterval= int.Parse(args[++i]);
                     }
+                    else if (args[i].Equals("-TolerablePeriod", StringComparison.OrdinalIgnoreCase) || args[i].Equals("/TolerablePeriod", StringComparison.OrdinalIgnoreCase))
+                    {
+                        MonitorAgents.GetInstance().TolerableOfflinePeriod = int.Parse(args[++i]);
+                    }
                     else
                     {
                         throw new Exception("invalid parameter " + args[i]);
@@ -101,7 +105,7 @@ namespace TFSPipelineHealthCheck
                 Console.WriteLine("Use command line arguments to overwrite config file settings.");
                 Console.WriteLine();
                 Console.WriteLine("Syntax:");
-                Console.WriteLine("TFSPipelineHelthCheck -smtp smtpserver [-port port] -from senderEmailAddress -To recipientsEmailAddresses [-include agentNames] [-includeHost ComputerNames] [-exclude agentNames] [-excludeHost ComputerNames]  [-interval AgentHealthCheckInterval] ");
+                Console.WriteLine("TFSPipelineHelthCheck -tfsurl tfsurl -smtp smtpserver [-port port] -from senderEmailAddress -To recipientsEmailAddresses [-include agentNames] [-includeHost ComputerNames] [-exclude agentNames] [-excludeHost ComputerNames]  [-interval AgentHealthCheckInterval] [-TolerablePeriod TolerableOfflinePeriod]");
                 Console.WriteLine("tfsurl:                    tfs url address (e.g. http://hostname:8080/tfs");
                 Console.WriteLine("smtpserver:                smtp server name");
                 Console.WriteLine("port:                      smtp server port");
@@ -110,6 +114,8 @@ namespace TFSPipelineHealthCheck
                 Console.WriteLine("agentNames:                semicolon separated list of intended agents");
                 Console.WriteLine("computerNames:             semicolon separated list of computers which are hosting intended agents");
                 Console.WriteLine("agentHealthCheckInterval   monitoring time interval (millisecons)");
+                Console.WriteLine();
+                Console.WriteLine("TolerableOfflinePeriod     tolerable offline period (millisecons)");
                 Console.WriteLine();
                 Console.WriteLine("Example1: For monitoring all agents.");
                 Console.WriteLine("TFSPipelineHelthCheck -smtp MySmtpServer -from TFSAdmin@mycompany.com -to John@smith.com;Dave@John.com");

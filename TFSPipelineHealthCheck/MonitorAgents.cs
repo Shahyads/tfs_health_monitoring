@@ -20,6 +20,7 @@ namespace TFSPipelineHealthCheck
         public string SmtpServer { get; set; }
         public int Port { get; set; } = 25;
         public int AgentHealthCheckInterval { get; set; } = 1000; // miliseconds
+        public int TolerableOfflinePeriod { get; set; } = 1000*60*2; // miliseconds
         private int eventId = 3;  //1 is reserved for start //2 is reserved for stop //so that be able to trigger some tasks on start and stop service events
         private static MonitorAgents instance = null;
         private MonitorAgents()
@@ -37,7 +38,8 @@ namespace TFSPipelineHealthCheck
             [MethodImpl(MethodImplOptions.Synchronized)]
             private set;
         } = false;
-        private List<Agent> badAgentList = new List<Agent>();
+        private Dictionary<string,Tuple<Agent,long>> badAgentList = new Dictionary<string,Tuple<Agent,long>>();
+        private DateTime PollingTime = DateTime.Now;
         public System.Diagnostics.EventLog eventlog=null;
         public void Run()
         {
@@ -52,12 +54,31 @@ namespace TFSPipelineHealthCheck
                     && (!a.enabled || a.status != "online")).ToList();
                 foreach (Agent agent in newBadAgentList)
                 {
-                    if (!badAgentList.Where(a=>a.id == agent.id).Any())
+                    if (badAgentList.ContainsKey(agent.name))
                     {
-                        Utility.SendMail("Agent \""+ agent.name + "\" is not online or enable", Utility.JsonSerialize<Agent>(agent), From, To, SmtpServer, Port);
+                        badAgentList[agent.name] = new Tuple<Agent,long>(agent, badAgentList[agent.name].Item2 % (long.MaxValue - 10) + badAgentList[agent.name].Item2/Math.Abs(badAgentList[agent.name].Item2));
+                    }
+                    else
+                    {
+                        badAgentList.Add(agent.name, new Tuple<Agent, long>(agent,1));
                     }
                 }
-                badAgentList = newBadAgentList;
+                for (int i = badAgentList.Count-1; i >=0 ; i--)
+                {
+                    if (!newBadAgentList.Any(a => a.name == badAgentList.ElementAt(i).Key))
+                    {
+                        badAgentList.Remove(badAgentList.ElementAt(i).Key);
+                    }
+                }
+                string body = "";
+                var x = badAgentList.Where(a => a.Value.Item2 * AgentHealthCheckInterval > TolerableOfflinePeriod).ToList();
+                foreach (var item in x)
+                {
+                    body = body + "Agent \"" + item.Key + "\" is not online or enable \n" + Utility.JsonSerialize<Agent>(item.Value.Item1) + "\n";
+                    badAgentList[item.Key] = new Tuple<Agent, long>(item.Value.Item1, -item.Value.Item2);
+                }
+                if (body != "")
+                    Utility.SendMail("Agent is not online or enable", body, From, To, SmtpServer, Port);
             }
             catch (Exception ex)
             {
