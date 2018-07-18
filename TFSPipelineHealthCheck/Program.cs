@@ -27,6 +27,8 @@ namespace TFSPipelineHealthCheck
                 MonitorAgents.GetInstance().Port = int.Parse(config.AppSettings.Settings["port"].Value);
                 MonitorAgents.GetInstance().From = config.AppSettings.Settings["from"].Value;
                 MonitorAgents.GetInstance().To = config.AppSettings.Settings["to"].Value;
+                MonitorAgents.GetInstance().AgentHealthCheckInterval = int.Parse(config.AppSettings.Settings["AgentHealthCheckInterval"].Value);
+                MonitorAgents.GetInstance().TolerableOfflinePeriod = int.Parse(config.AppSettings.Settings["TolerableOfflinePeriod"].Value);
                 Utility.TFSUri = config.AppSettings.Settings["tfsurl"].Value;
                 for (int i = 0; i < args.Length; i++)
                 {
@@ -143,6 +145,8 @@ namespace TFSPipelineHealthCheck
             Console.WriteLine(" port = " + MonitorAgents.GetInstance().Port.ToString());
             Console.WriteLine(" from = " + MonitorAgents.GetInstance().From);
             Console.WriteLine(" to = " + MonitorAgents.GetInstance().To);
+            Console.WriteLine(" AgentHealthCheckInterval = " + MonitorAgents.GetInstance().AgentHealthCheckInterval + " miliseconds");
+            Console.WriteLine(" TolerableOfflinePeriod = " + MonitorAgents.GetInstance().TolerableOfflinePeriod + " miliseconds");
             if (Environment.UserInteractive)
             {
                 BasicHealthCheckService.GetInstance().TestStartupAndStop(args);
